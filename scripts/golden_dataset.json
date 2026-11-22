@@ -1,0 +1,39 @@
+[
+  {
+    "id": "eval_001",
+    "format": "TXT",
+    "document": "MSA_Acme_Corporation.txt",
+    "question": "What are the renewal terms for the Acme Master Services Agreement?",
+    "expected_answer": "The agreement renews automatically for successive one-year terms unless terminated with 30 days prior notice.",
+    "expected_sources": ["MSA_Acme_Corporation.txt"],
+    "expected_pages": [1]
+  },
+  {
+    "id": "eval_002",
+    "format": "TXT",
+    "document": "Cloud_Security_Runbook.txt",
+    "question": "What is the procedure for rotating production API keys?",
+    "expected_answer": "Generate a new secondary key pair in AWS KMS / GCP Cloud KMS with rotation tag, update secret in Vault, deploy canary pods, and revoke primary after 24 hours.",
+    "expected_sources": ["Cloud_Security_Runbook.txt"],
+    "expected_pages": [1]
+  },
+  {
+    "id": "eval_003",
+    "format": "CSV",
+    "document": "Vendor_Support_Tiers_2026.csv",
+    "question": "What is the monthly support fee and response SLA for the Enterprise tier?",
+    "expected_answer": "Enterprise tier costs $1200 monthly with 15 minutes response time and 99.99% uptime.",
+    "expected_sources": ["Vendor_Support_Tiers_2026.csv"],
+    "expected_pages": [1]
+  },
+  {
+    "id": "eval_004",
+    "format": "TXT",
+    "document": "MSA_Acme_Corporation.txt",
+    "question": "What is the penalty for exceeding quantum teleportation limits in the hyperdrive?",
+    "expected_answer": "Insufficient evidence. The documents do not mention quantum teleportation limits.",
+    "expected_sources": [],
+    "expected_pages": [],
+    "should_abstain": true
+  }
+]

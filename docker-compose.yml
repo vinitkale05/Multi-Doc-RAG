@@ -1,0 +1,87 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: rag_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: rag_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: rag_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+  minio:
+    image: minio/minio:latest
+    container_name: rag_minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadminpassword
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../infrastructure/Dockerfile.backend
+    container_name: rag_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      APP_ENV: production
+      DATABASE_URL: postgresql+asyncpg://postgres:postgrespassword@postgres:5432/rag_db
+      REDIS_URL: redis://redis:6379/0
+      VECTOR_STORE: inmemory
+      STORAGE_BACKEND: local
+      LLM_PROVIDER: mock
+      EMBEDDING_PROVIDER: mock
+      RERANKER_PROVIDER: simple
+      JWT_SECRET: production_ready_jwt_secret_change_me_super_secure_key
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./storage_data:/app/storage_data
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../infrastructure/Dockerfile.frontend
+    container_name: rag_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
+  redisdata:
+  miniodata:
