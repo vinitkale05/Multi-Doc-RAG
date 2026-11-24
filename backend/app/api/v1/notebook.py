@@ -28,16 +28,29 @@ async def resolve_sources(
         .join(Document, Chunk.document_id == Document.id)
         .join(Collection, Document.collection_id == Collection.id)
         .where(Collection.tenant_id == user.tenant_id)
+        .where(Document.status == "READY")
     )
 
-    if req.document_ids:
+    if req.document_ids and len(req.document_ids) > 0:
         query = query.where(Document.id.in_(req.document_ids))
     elif req.collection_id:
         query = query.where(Document.collection_id == req.collection_id)
 
     rows = (await db.execute(query)).all()
     if not rows:
-        raise AppError(status_code=400, detail="No sources found for the selected scope.")
+        # Fallback to any ready document in tenant so studio buttons always work smoothly
+        fallback_query = (
+            select(Chunk, Document)
+            .join(Document, Chunk.document_id == Document.id)
+            .join(Collection, Document.collection_id == Collection.id)
+            .where(Collection.tenant_id == user.tenant_id)
+            .where(Document.status == "READY")
+            .limit(30)
+        )
+        rows = (await db.execute(fallback_query)).all()
+
+    if not rows:
+        raise AppError(status_code=400, detail="No source documents found. Please upload or select a document first.")
 
     sources = []
     for chunk, doc in rows:

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
 import {
   AudioOverviewData,
   StudioArtifactData,
@@ -564,8 +565,25 @@ export default function NotebookStudioPanel({
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 text-xs text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap font-serif">
-              {activeArtifact.content_markdown}
+            <div className="flex-1 overflow-y-auto p-6 text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-sans">
+              <ReactMarkdown
+                components={{
+                  h1: ({ node, ...props }) => <h1 className="text-base font-bold text-slate-900 dark:text-white pb-2 mb-3 border-b border-slate-200 dark:border-slate-800" {...props} />,
+                  h2: ({ node, ...props }) => <h2 className="text-sm font-bold text-sky-600 dark:text-sky-400 mt-4 mb-2" {...props} />,
+                  h3: ({ node, ...props }) => <h3 className="text-xs font-bold text-slate-900 dark:text-white mt-3 mb-1" {...props} />,
+                  p: ({ node, ...props }) => <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed mb-2" {...props} />,
+                  ul: ({ node, ...props }) => <ul className="list-disc pl-5 text-xs text-slate-700 dark:text-slate-300 space-y-1 my-2" {...props} />,
+                  ol: ({ node, ...props }) => <ol className="list-decimal pl-5 text-xs text-slate-700 dark:text-slate-300 space-y-1 my-2" {...props} />,
+                  li: ({ node, ...props }) => <li className="leading-relaxed" {...props} />,
+                  strong: ({ node, ...props }) => <strong className="font-semibold text-slate-900 dark:text-white" {...props} />,
+                  hr: ({ node, ...props }) => <hr className="my-3 border-slate-200 dark:border-slate-800" {...props} />,
+                  table: ({ node, ...props }) => <div className="overflow-x-auto my-3"><table className="min-w-full text-xs border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden" {...props} /></div>,
+                  th: ({ node, ...props }) => <th className="bg-slate-100 dark:bg-slate-800/80 p-2 text-left font-semibold border-b border-slate-200 dark:border-slate-700" {...props} />,
+                  td: ({ node, ...props }) => <td className="p-2 border-b border-slate-100 dark:border-slate-800/50" {...props} />,
+                }}
+              >
+                {activeArtifact.content_markdown}
+              </ReactMarkdown>
             </div>
 
             <div className="px-5 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center justify-between text-xs">
